@@ -1,0 +1,11 @@
+<div class="chat-container">
+    <div class="messages">
+        <div *ngFor="let msg of messages">{{ msg }}</div>
+    </div>
+
+    <form [formGroup]="chatForm" (ngSubmit)="sendMessage()">
+        <input type="text" class="form-control" formControlName="message" placeholder="Type your message"
+            (keyup.enter)="sendMessage()" />
+        <button class="btn btn-primary" type="submit" [disabled]="chatForm.invalid">Send</button>
+    </form>
+</div>

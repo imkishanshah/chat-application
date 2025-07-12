@@ -1,0 +1,19 @@
+/* You can add global styles to this file, and also import other style files */
+.form-label {
+  font-weight: 600; 
+  font-size: 15px;         
+  color: #333;              
+}
+
+
+.form-control {
+  border: 1.5px solid #555;
+  padding: 12px;
+  border-radius: 6px;
+  transition: border-color 0.2s;
+}
+
+.form-control:focus {
+  border-color: #f8b500;
+  box-shadow: 0 0 0 0.15rem rgba(248, 181, 0, 0.25);
+}
