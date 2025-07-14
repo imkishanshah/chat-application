@@ -38,9 +38,9 @@ export class authController {
                 return res.status(401).json({ message: "Wait for admin approval!" });
             }
 
-            const token = jwt.sign({ id, email, }, "k[xjv76-53234/345hkj~nde5769", { expiresIn: "8h" });
-
-            return res.status(200).json({ token: token })
+            const token = jwt.sign({ id: userExist.id, email, }, "k[xjv76-53234/345hkj~nde5769", { expiresIn: "8h" });
+            const userData = userExist
+            return res.status(200).json({ token: token, user: userData })
         } catch (error) {
             return res.status(500).json({ message: "Internal server error" })
         }
