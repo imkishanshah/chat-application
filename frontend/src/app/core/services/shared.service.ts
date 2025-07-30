@@ -41,11 +41,10 @@ export class SharedService {
   }
 
 
-  getChatRoom(userId1: number, userId2: number): string {
-    console.log(userId1, userId2);
-
-    const [a, b] = [userId1, userId2].sort((x, y) => x - y);
-    return `room-${a}-${b}`;
+  getChatRoom(user1Id: number, user2Id: number): string {
+    const sortedIds = [user1Id, user2Id].sort((a, b) => a - b);
+    return `${sortedIds[0]}_${sortedIds[1]}`;
   }
+
 
 }

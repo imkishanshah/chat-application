@@ -1,14 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { Component, Injectable } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { ApiService } from '../../../core/services/api.service';
 import { E_STORAGE } from '../../../core/enums/storage.enum';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, RouterModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
@@ -29,6 +29,12 @@ export class LoginComponent {
     });
   }
 
+  toSignUp() {
+    console.log("svkm;");
+
+    this.router.navigate(['/signup']);
+  }
+
   onSubmit() {
     if (this.loginForm.invalid) return;
 
@@ -36,10 +42,9 @@ export class LoginComponent {
 
     this.api.post<any>('auth/login', credentials).subscribe({
       next: (response) => {
-        console.log(response);
-
         // Handle success - store token, redirect, etc.
         localStorage.setItem(E_STORAGE.TOKEN, response.token);
+        localStorage.setItem(E_STORAGE.USER, JSON.stringify(response?.user));
         this.router.navigate(['/chat']);
       },
       error: (error) => {

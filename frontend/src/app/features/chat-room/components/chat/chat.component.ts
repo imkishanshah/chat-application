@@ -14,11 +14,12 @@ import { ApiService } from '../../../../core/services/api.service';
 })
 export class ChatComponent implements OnInit {
   room = 'room1';
-  chatForm: FormGroup;
-  messages: string[] = [];
+  chatForm!: FormGroup;
+  messages: any[] = [];
   users: any[] = [];
   selectedUser: any;
   currentUserId: any;
+  loggedInUser: any;
 
   constructor(
     private fb: FormBuilder,
@@ -26,32 +27,33 @@ export class ChatComponent implements OnInit {
     private sharedService: SharedService,
     private api: ApiService,
   ) {
-    this.chatForm = this.fb.group({
-      message: ['', Validators.required]
-    });
+
   }
 
   ngOnInit() {
-    const currentUser = this.sharedService.getDecodedToken();
-    console.log(currentUser);
 
-    this.currentUserId = currentUser?.id
+    const currentUser = this.sharedService.getDecodedToken();
+    this.loggedInUser = this.sharedService.getUser();
+
+    this.currentUserId = currentUser?.id;
     this.getAllUsers();
+    this.createChatForm()
     if (typeof window !== 'undefined') {
       this.socketService.joinRoom(this.room);
       this.socketService.onNewMessage().subscribe(msg => {
-        console.log(msg);
-
-        this.messages.push(msg);
+        this.messages.push({
+          ...msg,
+          fromSelf: msg.sender_id === this.currentUserId
+        });
       });
     }
-
   }
-
   getAllUsers() {
     this.api.get<any>('user').subscribe({
       next: (response) => {
-        this.users = response?.data;
+        this.users = response?.data.filter((user: any) => {
+          return user.id !== this.currentUserId;
+        });
       },
       error: (error) => {
         console.error('Failed to fetch users:', error);
@@ -61,17 +63,28 @@ export class ChatComponent implements OnInit {
 
   selectUser(user: any) {
     this.selectedUser = user;
-
-    // Create a consistent room ID
     this.room = this.sharedService.getChatRoom(this.currentUserId!, user.id);
-    console.log(this.selectedUser, this.room);
-
     this.messages = []; // Clear old messages
 
-    // Join the selected room
+    // Join the new room
     this.socketService.joinRoom(this.room);
 
-    // Optionally fetch previous chat history here
+    // Fetch message history
+    this.socketService.getMessages(this.currentUserId!, user.id).subscribe({
+      next: (response: any) => {
+        console.log(response);
+
+        this.messages = response?.payload?.data.map((msg: any) => ({
+          ...msg,
+          fromSelf: msg.sender_id === this.currentUserId
+        }));
+        console.log(this.messages);
+
+      },
+      error: (error) => {
+        console.error('Failed to fetch messages:', error);
+      }
+    });
   }
 
 
@@ -85,10 +98,18 @@ export class ChatComponent implements OnInit {
   }
 
   sendMessage() {
-    const message = this.chatForm.value.message.trim();
-    if (message) {
-      this.socketService.sendMessage(this.room, message);
-      this.chatForm.reset(); // clear input field
+    const message = this.chatForm.value.message?.trim();
+
+    if (message && this.selectedUser) {
+      this.socketService.sendMessage(
+        this.room,
+        message,
+        this.currentUserId,
+        this.selectedUser.id
+      );
+
+      this.chatForm.reset();
     }
   }
+
 }

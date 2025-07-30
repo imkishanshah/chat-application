@@ -1,60 +1,78 @@
-<!-- <div class="chat-container">
-
-    <div class="messages">
-        <div *ngFor="let msg of messages">{{ msg }}</div>
-    </div>
-
-    <form [formGroup]="chatForm" (ngSubmit)="sendMessage()">
-        <input type="text" class="form-control" formControlName="message" placeholder="Type your message"
-            (keyup.enter)="sendMessage()" />
-        <button class="btn btn-primary" type="submit" [disabled]="chatForm.invalid">Send</button>
-    </form>
-</div> -->
-
-
-<div class="container-fluid d-flex flex-column vh-100">
-    <nav class="navbar navbar-dark bg-dark px-3">
-        <span class="navbar-brand">Chat Application</span>
-        <button class="btn btn-outline-light btn-sm">Logout</button>
+<div class="container-fluid d-flex flex-column vh-100 bg-light">
+    <!-- Top Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary px-3 shadow-sm">
+        <span class="navbar-brand fw-bold">💬 Chat Application</span>
+        <div class="ms-auto d-flex align-items-center gap-3">
+            <span class="text-white">{{ loggedInUser?.first_name }}</span>
+            <button class="btn btn-outline-light btn-sm">Logout</button>
+        </div>
     </nav>
 
+    <!-- Main Layout Row -->
     <div class="row flex-grow-1 overflow-hidden">
-        <div class="col-md-3 border border-secondary rounded-start d-none d-md-block p-0 bg-light">
-            <div class="p-3 border-bottom">
-                <input type="text" class="form-control" placeholder="Search users..." />
+
+        <!-- Sidebar: User List -->
+        <div class="col-md-3 d-none d-md-block p-0 bg-white border-end shadow-sm">
+            <div class="p-3 border-bottom bg-body-tertiary">
+                <input type="text" class="form-control" placeholder="🔍 Search users..." />
             </div>
-            <ul class="list-group list-group-flush overflow-auto h-100">
-                <li *ngFor="let user of users" (click)="selectUser(user)"
-                    class="list-group-item list-group-item-action">
-                    {{ user.first_name }}
-                </li>
-            </ul>
+            <div class="user-list overflow-auto" style="max-height: calc(100vh - 110px);">
+                <ul class="list-unstyled m-0">
+                    <li *ngFor="let user of users" (click)="selectUser(user)"
+                        [ngClass]="{ 'bg-primary text-white': user.id === selectedUser?.id }"
+                        class="p-3 border-bottom user-item" style="cursor: pointer; transition: 0.2s;">
+                        {{ user.first_name }}
+                    </li>
+                </ul>
+            </div>
         </div>
 
+        <!-- Chat Window -->
+        <div class="col-md-9 col-12 d-flex flex-column p-0">
 
-        <!-- <div class="col-md-9 col-12 d-flex flex-column p-0">
-      <div class="d-flex align-items-center justify-content-between p-2 border-bottom bg-light">
-        <button class="btn btn-link d-md-none" (click)="backToUsers()">&larr;</button>
-        <h6 class="mb-0">{{ selectedUser?.name }}</h6>
-      </div>
+            <!-- Chat Header -->
+            <div class="d-flex align-items-center justify-content-between p-3 border-bottom bg-white shadow-sm">
+                <h5 class="mb-0">{{ selectedUser?.first_name || 'Chat Window' }}</h5>
+            </div>
 
-      <div class="flex-grow-1 overflow-auto p-3 bg-body-secondary">
-        <div *ngFor="let msg of messages" [ngClass]="{ 'text-end': msg.fromSelf, 'text-start': !msg.fromSelf }">
-          <div class="d-inline-block p-2 my-1 rounded bg-primary text-white" *ngIf="msg.fromSelf">
-            {{ msg.text }}
-          </div>
-          <div class="d-inline-block p-2 my-1 rounded bg-light border" *ngIf="!msg.fromSelf">
-            {{ msg.text }}
-          </div>
+            <!-- Chat Body -->
+            <div class="flex-grow-1 overflow-auto p-3 bg-body-secondary">
+
+                <!-- Placeholder when no user is selected -->
+                <div *ngIf="!selectedUser" class="h-100 d-flex justify-content-center align-items-center text-muted">
+                    <h5>Please select a user to chat with</h5>
+                </div>
+
+                <!-- Chat Messages -->
+                <div *ngIf="selectedUser">
+                    <div *ngFor="let msg of messages" class="mb-2 d-flex"
+                        [ngClass]="{ 'justify-content-end': msg.fromSelf, 'justify-content-start': !msg.fromSelf }">
+                        <div [ngClass]="msg.fromSelf ? 'bg-primary text-white' : 'bg-white border'"
+                            class="p-2 rounded shadow-sm" style="max-width: 70%;">
+                            {{ msg.message }}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Message Input -->
+            <div class="p-3 border-top bg-white shadow-sm" *ngIf="selectedUser">
+                <form [formGroup]="chatForm" (ngSubmit)="sendMessage()">
+                    <div class="row g-2 align-items-center">
+                        <div class="col-10 col-sm-11">
+                            <input type="text" class="form-control" formControlName="message"
+                                placeholder="Type your message..." />
+                        </div>
+                        <div class="col-2 col-sm-1 text-end">
+                            <button class="btn btn-primary w-100" type="submit" [disabled]="chatForm.invalid">
+                                📩
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
         </div>
-      </div>
-
-      <div class="p-3 border-top bg-white">
-        <form class="d-flex" (submit)="sendMessage(); $event.preventDefault();">
-          <input type="text" [(ngModel)]="newMessage" name="message" class="form-control me-2" placeholder="Type a message...">
-          <button class="btn btn-primary" type="submit">Send</button>
-        </form>
-      </div>
-    </div> -->
     </div>
 </div>

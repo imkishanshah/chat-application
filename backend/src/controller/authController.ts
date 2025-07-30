@@ -34,9 +34,9 @@ export class authController {
                 return res.status(401).json({ message: "Invalid credentials!" });
             }
 
-            if (userExist?.is_active == 0) {
-                return res.status(401).json({ message: "Wait for admin approval!" });
-            }
+            // if (userExist?.is_active == 0) {
+            //     return res.status(401).json({ message: "Wait for admin approval!" });
+            // }
 
             const token = jwt.sign({ id: userExist.id, email, }, "k[xjv76-53234/345hkj~nde5769", { expiresIn: "8h" });
             const userData = userExist

@@ -19,23 +19,33 @@ export function initSocket(server: any) {
             console.log(`User ${socket.id} joined room: ${roomName}`);
         });
 
-        socket.on('sendMessage', async (data) => {
 
+        socket.on('sendMessage', async (data) => {
             const { senderId, receiverId, message } = data;
-            console.log(senderId, receiverId, message, "messagemessagemessagemessagemessagemessage");
 
             const saveMessage = new MessagesEntity();
             saveMessage.sender_id = senderId;
             saveMessage.receiver_id = receiverId;
             saveMessage.message = message;
-            console.log(saveMessage);
+            saveMessage.room_id = `${senderId}_${receiverId}`;
+            saveMessage.read = 0;
+            saveMessage.message_type = 1;
 
-            await AppDataSource.getRepository(MessagesEntity).save(saveMessage);
+            const savedMessage = await AppDataSource.getRepository(MessagesEntity).save(saveMessage);
 
-            const room1 = `${senderId}_${receiverId}`;
-            const room2 = `${receiverId}_${senderId}`;
-            io.to(room1).to(room2).emit('newMessage', message);
+            const messageToSend = {
+                id: savedMessage.id,
+                sender_id: savedMessage.sender_id,
+                receiver_id: savedMessage.receiver_id,
+                message: savedMessage.message,
+                created_at: savedMessage.created_at
+            };
+
+            const room = `${[senderId, receiverId].sort((a, b) => a - b).join('_')}`;
+            io.to(room).emit('newMessage', messageToSend);
+
         });
+
 
         socket.on('disconnect', () => {
             console.log(`User disconnected: ${socket.id}`);

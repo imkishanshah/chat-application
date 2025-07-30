@@ -2,6 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import { AppDataSource } from "../data-source";
 import { UserEntity } from "../entities/user.entity";
 import { successResponse } from "../utils/services/responseUtil";
+import { MessagesEntity } from "../entities/messages.entity";
 
 export class userController {
 
@@ -79,4 +80,24 @@ export class userController {
             return res.status(500).json({ message: "Internal server error" })
         }
     }
+
+    async getMessages(req: any, res: any) {
+        try {
+            const { user1Id, user2Id } = req.body;
+
+            const messages = await AppDataSource.getRepository(MessagesEntity).find({
+                where: [
+                    { sender_id: user1Id, receiver_id: user2Id },
+                    { sender_id: user2Id, receiver_id: user1Id }
+                ],
+                order: { created_at: 'ASC' }
+            });
+
+            return successResponse(res, StatusCodes.OK, "Messages found successfully", messages);
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({ message: "Internal server error" });
+        }
+    }
+
 }

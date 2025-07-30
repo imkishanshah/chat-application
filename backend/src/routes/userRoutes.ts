@@ -6,7 +6,6 @@ const users = new userController();
 
 // USER ROUTES  
 usersRoutes.get("/", users.getAllUsers);
-// usersRoutes.post("/add-user", verifySingleUploadFile, users.CreateUser);
-
+usersRoutes.post("/messages", users.getMessages);
 
 export default usersRoutes;
