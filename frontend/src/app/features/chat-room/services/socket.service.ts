@@ -12,7 +12,10 @@ export class SocketService {
 
   constructor(private http: HttpClient) {
     if (typeof window !== 'undefined') {
-      this.socket = io(this.baseUrl);
+      this.socket = io(this.baseUrl, {
+        transports: ['websocket'],
+        withCredentials: true
+      });
     }
   }
 

@@ -3,6 +3,8 @@ import { AppDataSource } from "../data-source";
 import { UserEntity } from "../entities/user.entity";
 import { successResponse } from "../utils/services/responseUtil";
 import { MessagesEntity } from "../entities/messages.entity";
+import * as bcrypt from 'bcryptjs';
+
 
 export class userController {
 
@@ -51,19 +53,32 @@ export class userController {
             return res.status(500).json({ message: "Internal server error" })
         }
     }
-
     async createUser(req: any, res: any) {
         try {
             const userData = req?.body;
+
+            // Check if password exists
+            if (!userData?.password) {
+                return res.status(400).json({ message: "Password is required" });
+            }
+
+            // Hash the password
+            const hashedPassword = await bcrypt.hash(userData.password, 10); // 10 = salt rounds
+
+            // Replace plain password with hashed password
+            userData.password = hashedPassword;
+
             const saveUserData = await AppDataSource.getRepository(UserEntity).save(userData);
-            return successResponse(res, StatusCodes.OK, "User created succesfully", saveUserData);
+
+            // Optionally remove password from response
+            const { password, ...userWithoutPassword } = saveUserData;
+
+            return successResponse(res, StatusCodes.OK, "User created successfully", userWithoutPassword);
         } catch (error) {
             console.log(error);
-            return res.status(500).json({ message: "Internal server error" })
+            return res.status(500).json({ message: "Internal server error" });
         }
     }
-
-
     async updateUser(req: any, res: any) {
         try {
             const id = req?.params?.id;
@@ -82,9 +97,12 @@ export class userController {
     }
 
     async getMessages(req: any, res: any) {
+        console.log(";mbf;dmb");
+
         try {
             const { user1Id, user2Id } = req.body;
 
+            debugger
             const messages = await AppDataSource.getRepository(MessagesEntity).find({
                 where: [
                     { sender_id: user1Id, receiver_id: user2Id },
@@ -92,7 +110,7 @@ export class userController {
                 ],
                 order: { created_at: 'ASC' }
             });
-
+            debugger
             return successResponse(res, StatusCodes.OK, "Messages found successfully", messages);
         } catch (error) {
             console.log(error);

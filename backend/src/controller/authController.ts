@@ -2,7 +2,7 @@ import { AppDataSource } from "../data-source";
 import { UserEntity } from "../entities/user.entity";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
-
+import * as bcrypt from 'bcryptjs';
 
 export class authController {
 
@@ -34,13 +34,15 @@ export class authController {
                 return res.status(401).json({ message: "Invalid credentials!" });
             }
 
+
+
             // if (userExist?.is_active == 0) {
             //     return res.status(401).json({ message: "Wait for admin approval!" });
             // }
 
             const token = jwt.sign({ id: userExist.id, email, }, "k[xjv76-53234/345hkj~nde5769", { expiresIn: "8h" });
             const userData = userExist
-            return res.status(200).json({ token: token, user: userData })
+            return res.status(200).json({ token: token, user: userData, message: "Login successful!" })
         } catch (error) {
             return res.status(500).json({ message: "Internal server error" })
         }

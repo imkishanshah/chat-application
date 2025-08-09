@@ -64,12 +64,10 @@ export class ChatComponent implements OnInit {
   selectUser(user: any) {
     this.selectedUser = user;
     this.room = this.sharedService.getChatRoom(this.currentUserId!, user.id);
-    this.messages = []; // Clear old messages
+    this.messages = [];
 
-    // Join the new room
     this.socketService.joinRoom(this.room);
 
-    // Fetch message history
     this.socketService.getMessages(this.currentUserId!, user.id).subscribe({
       next: (response: any) => {
         console.log(response);

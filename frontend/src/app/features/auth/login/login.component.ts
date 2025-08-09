@@ -30,8 +30,6 @@ export class LoginComponent {
   }
 
   toSignUp() {
-    console.log("svkm;");
-
     this.router.navigate(['/signup']);
   }
 
@@ -42,7 +40,6 @@ export class LoginComponent {
 
     this.api.post<any>('auth/login', credentials).subscribe({
       next: (response) => {
-        // Handle success - store token, redirect, etc.
         localStorage.setItem(E_STORAGE.TOKEN, response.token);
         localStorage.setItem(E_STORAGE.USER, JSON.stringify(response?.user));
         this.router.navigate(['/chat']);
