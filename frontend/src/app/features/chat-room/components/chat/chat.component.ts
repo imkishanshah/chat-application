@@ -50,7 +50,7 @@ export class ChatComponent implements OnInit {
   }
   getAllUsers() {
     this.api.get<any>('user').subscribe({
-      next: (response) => {
+      next: (response) => {        
         this.users = response?.data.filter((user: any) => {
           return user.id !== this.currentUserId;
         });

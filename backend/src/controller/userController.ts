@@ -53,6 +53,7 @@ export class userController {
             return res.status(500).json({ message: "Internal server error" })
         }
     }
+    
     async createUser(req: any, res: any) {
         try {
             const userData = req?.body;
