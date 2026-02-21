@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, Injectable } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { ApiService } from '../../../core/services/api.service';
 import { E_STORAGE } from '../../../core/enums/storage.enum';
+import { SharedService } from '../../../core/services/shared.service';
 
 @Component({
   selector: 'app-login',
@@ -15,12 +16,16 @@ import { E_STORAGE } from '../../../core/enums/storage.enum';
 export class LoginComponent {
   loginForm!: FormGroup;
 
-  constructor(public fb: FormBuilder, private router: Router, private api: ApiService,) {
+  constructor(public fb: FormBuilder, private router: Router, private api: ApiService, private sharedService: SharedService) {
+    // Initialize the form
+    this.createLoginForm();
   }
 
   ngOnInit() {
     this.createLoginForm();
   }
+
+
 
   createLoginForm() {
     this.loginForm = <FormGroup>this.fb.group({
@@ -40,8 +45,9 @@ export class LoginComponent {
 
     this.api.post<any>('auth/login', credentials).subscribe({
       next: (response) => {
-        localStorage.setItem(E_STORAGE.TOKEN, response.token);
+        localStorage.setItem(E_STORAGE.TOKEN, response.accessToken);
         localStorage.setItem(E_STORAGE.USER, JSON.stringify(response?.user));
+        this.sharedService.setUser(response?.user);
         this.router.navigate(['/chat']);
       },
       error: (error) => {

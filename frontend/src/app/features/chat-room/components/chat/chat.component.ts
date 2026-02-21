@@ -19,7 +19,7 @@ export class ChatComponent implements OnInit {
   users: any[] = [];
   selectedUser: any;
   currentUserId: any;
-  loggedInUser: any;
+
 
   constructor(
     private fb: FormBuilder,
@@ -32,9 +32,9 @@ export class ChatComponent implements OnInit {
 
   ngOnInit() {
 
+    console.log("s");
+    
     const currentUser = this.sharedService.getDecodedToken();
-    this.loggedInUser = this.sharedService.getUser();
-
     this.currentUserId = currentUser?.id;
     this.getAllUsers();
     this.createChatForm()
@@ -48,6 +48,7 @@ export class ChatComponent implements OnInit {
       });
     }
   }
+
   getAllUsers() {
     this.api.get<any>('user').subscribe({
       next: (response) => {        
@@ -70,14 +71,10 @@ export class ChatComponent implements OnInit {
 
     this.socketService.getMessages(this.currentUserId!, user.id).subscribe({
       next: (response: any) => {
-        console.log(response);
-
         this.messages = response?.payload?.data.map((msg: any) => ({
           ...msg,
           fromSelf: msg.sender_id === this.currentUserId
         }));
-        console.log(this.messages);
-
       },
       error: (error) => {
         console.error('Failed to fetch messages:', error);
@@ -85,13 +82,11 @@ export class ChatComponent implements OnInit {
     });
   }
 
-
   createChatForm() {
     this.chatForm = <FormGroup>this.fb.group({
       message: new FormControl(null, Validators.required),
       sender_id: new FormControl(null),
       receiver_id: new FormControl(null),
-
     })
   }
 

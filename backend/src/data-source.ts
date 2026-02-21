@@ -9,7 +9,7 @@ export const AppDataSource = new DataSource({
     database: "task_management",
     entities: [__dirname + "/**/*.entity{.ts,.js}"],
     synchronize: true,
-    logging: true,
+    logging: false,
     subscribers: [],
     migrations: [],
 })

@@ -1,0 +1,4 @@
+.chat-body {
+  height: calc(100vh - 150px); /* 150px = approx header + input height */
+  overflow-y: auto;
+}

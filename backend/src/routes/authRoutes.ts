@@ -8,5 +8,5 @@ const users = new authController();
 authRoutes.post("/signup", users.signup);
 authRoutes.post("/login", users.login);
 
-
+    
 export default authRoutes;

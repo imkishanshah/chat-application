@@ -27,14 +27,21 @@ export class authController {
     async login(req: any, res: any) {
         try {
             const data = req?.body;
-            const { id, email } = req?.body;
+            const { password, email } = req?.body;
             let userExist = await AppDataSource.getRepository(UserEntity).findOne({ where: { email: data?.email } })
 
+            // check if user exists
             if (!userExist) {
                 return res.status(401).json({ message: "Invalid credentials!" });
             }
 
+            // check password
+            const isPasswordValid = await bcrypt.compare(password, userExist.password);
+            if (!isPasswordValid) {
+                return res.status(401).json({ message: "Invalid credentials!" });
+            }
 
+            //generate JWT token
             const token = jwt.sign({ id: userExist.id, email, }, "k[xjv76-53234/345hkj~nde5769", { expiresIn: "8h" });
             const userData = userExist
             return res.status(200).json({ token: token, user: userData, message: "Login successful!" })

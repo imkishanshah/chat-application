@@ -8,7 +8,7 @@ import { HttpClient } from '@angular/common/http';
 })
 export class SocketService {
   private socket?: Socket;
-  private readonly baseUrl = 'http://localhost:3001';
+  private readonly baseUrl = 'http://localhost:3000';
 
   constructor(private http: HttpClient) {
     if (typeof window !== 'undefined') {

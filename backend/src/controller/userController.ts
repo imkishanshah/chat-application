@@ -103,7 +103,6 @@ export class userController {
         try {
             const { user1Id, user2Id } = req.body;
 
-            debugger
             const messages = await AppDataSource.getRepository(MessagesEntity).find({
                 where: [
                     { sender_id: user1Id, receiver_id: user2Id },
@@ -111,7 +110,6 @@ export class userController {
                 ],
                 order: { created_at: 'ASC' }
             });
-            debugger
             return successResponse(res, StatusCodes.OK, "Messages found successfully", messages);
         } catch (error) {
             console.log(error);

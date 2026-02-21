@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { E_STORAGE } from '../enums/storage.enum';
 import { jwtDecode, JwtPayload } from "jwt-decode";
+import { BehaviorSubject } from 'rxjs';
 interface MyJwtPayload extends JwtPayload {
   id: number
   first_name?: string;
@@ -13,13 +14,20 @@ interface MyJwtPayload extends JwtPayload {
 
 
 export class SharedService {
+  private isLoggedInSubject = new BehaviorSubject<boolean>(!!localStorage.getItem(E_STORAGE.TOKEN));
+  isLoggedIn$ = this.isLoggedInSubject.asObservable();
 
-  constructor() {
+  private userSubject = new BehaviorSubject<any>(this.getUser());
+  user$ = this.userSubject.asObservable();
 
+  private hasToken(): boolean {
+    return !!localStorage.getItem(E_STORAGE.TOKEN);
   }
 
   setUser(user: any) {
     localStorage.setItem(E_STORAGE.USER, JSON.stringify(user));
+    this.userSubject.next(user);
+    this.isLoggedInSubject.next(true);
   }
 
   setToken(token: string) {
@@ -28,6 +36,13 @@ export class SharedService {
 
   getToken(): string | null {
     return localStorage.getItem(E_STORAGE.TOKEN);
+  }
+
+  clearUser() {
+    localStorage.removeItem(E_STORAGE.USER);
+    localStorage.removeItem(E_STORAGE.TOKEN);
+    this.userSubject.next(null);
+    this.isLoggedInSubject.next(false);
   }
 
   getUser(): any {
@@ -46,5 +61,9 @@ export class SharedService {
     return `${sortedIds[0]}_${sortedIds[1]}`;
   }
 
+
+  isLoggedIn(): boolean {
+    return !!this.getToken();
+  }
 
 }
