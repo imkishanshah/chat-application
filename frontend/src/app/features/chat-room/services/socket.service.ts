@@ -45,4 +45,50 @@ export class SocketService {
     return this.http.post<any[]>(`${this.baseUrl}/user/messages`, { user1Id, user2Id });
   }
 
+  sendTyping(room: string, userName: string) {
+    this.socket?.emit('typing', { room, user: userName });
+  }
+
+  sendStopTyping(room: string) {
+    this.socket?.emit('stopTyping', { room });
+  }
+
+  onTyping(): Observable<any> {
+    return new Observable(observer => {
+      this.socket?.on('displayTyping', (data) => {
+        observer.next(data);
+      });
+
+      // Cleanup logic (optional but recommended)
+      return () => {
+        this.socket?.off('displayTyping');
+      };
+    });
+  }
+
+  onStopTyping(): Observable<any> {
+    return new Observable(observer => {
+      this.socket?.on('hideTyping', (data) => {
+        observer.next(data);
+      });
+
+      // Cleanup logic
+      return () => {
+        this.socket?.off('hideTyping');
+      };
+    });
+  }
+
+  emitAddUser(userId: number) {
+    this.socket?.emit('addUser', userId);
+  }
+
+  // 2. Listen for the list of online users
+  onGetOnlineUsers(): Observable<any[]> {
+    return new Observable(observer => {
+      this.socket?.on('getOnlineUsers', (userIds: any[]) => {
+        observer.next(userIds);
+      });
+    });
+  }
 }

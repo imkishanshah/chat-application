@@ -80,6 +80,7 @@ export class userController {
             return res.status(500).json({ message: "Internal server error" });
         }
     }
+
     async updateUser(req: any, res: any) {
         try {
             const id = req?.params?.id;
@@ -98,7 +99,6 @@ export class userController {
     }
 
     async getMessages(req: any, res: any) {
-        console.log(";mbf;dmb");
 
         try {
             const { user1Id, user2Id } = req.body;

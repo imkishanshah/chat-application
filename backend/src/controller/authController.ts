@@ -8,18 +8,21 @@ export class authController {
 
     async signup(req: any, res: any) {
         try {
-            let user = req?.body;
-            user.role = "user";
-            let userExist = await AppDataSource.getRepository(UserEntity).findOne({ where: { email: user?.email } })
-
+            let userData = req?.body;
+            let userExist = await AppDataSource.getRepository(UserEntity).findOne({ where: { email: userData?.email } })
+            let token;
+            let savedUser;
             if (userExist) {
                 return res.status(400).json({ message: "Email already exist!" })
             } else {
-                const saveUser = await AppDataSource.getRepository(UserEntity).save(user);
+                savedUser = await AppDataSource.getRepository(UserEntity).save(userData);
+                token = jwt.sign({ id:savedUser?.id, email: userData?.email, }, "k[xjv76-53234/345hkj~nde5769", { expiresIn: "8h" });
             }
 
-            return res.status(200).json({ message: "Successfully registered!" })
+            return res.status(200).json({ user: savedUser, token: token, message: "Successfully registered!" })
         } catch (error) {
+            console.log(error);
+
             return res.status(500).json({ message: "Internal server error" })
         }
     }
@@ -34,13 +37,13 @@ export class authController {
             if (!userExist) {
                 return res.status(401).json({ message: "Invalid credentials!" });
             }
-
+            
             // check password
-            const isPasswordValid = await bcrypt.compare(password, userExist.password);
-            if (!isPasswordValid) {
+            const isPasswordValid = password == userExist.password
+            
+            if(!isPasswordValid) {
                 return res.status(401).json({ message: "Invalid credentials!" });
-            }
-
+            }            
             //generate JWT token
             const token = jwt.sign({ id: userExist.id, email, }, "k[xjv76-53234/345hkj~nde5769", { expiresIn: "8h" });
             const userData = userExist

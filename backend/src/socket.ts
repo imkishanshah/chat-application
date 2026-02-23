@@ -4,6 +4,7 @@ import { AppDataSource } from './data-source';
 import { MessagesEntity } from './entities/messages.entity';
 
 export function initSocket(server: any) {
+    let onlineUsers = new Map();
     const io = new Server(server, {
         cors: {
             origin: 'http://localhost:4200',
@@ -46,8 +47,45 @@ export function initSocket(server: any) {
 
         });
 
+        socket.on('addUser', (userId) => {
+            // Map userId to the specific socket ID
+            onlineUsers.set(userId, socket.id);
+
+            console.log(`User ${userId} is online.`);
+
+            // Convert Map keys to an array and send to ALL clients
+            const onlineUserIds = Array.from(onlineUsers.keys());
+            io.emit('getOnlineUsers', onlineUserIds);
+        });
+
+        socket.on('typing', (data) => {
+            const { room, user } = data;
+            socket.to(room).emit('displayTyping', { user });
+        });
+
+        socket.on('stopTyping', (data) => {
+            const { room } = data;
+            socket.to(room).emit('hideTyping');
+        });
 
         socket.on('disconnect', () => {
+            let disconnectedUserId;
+
+            for (let [key, value] of onlineUsers.entries()) {
+                if (value === socket.id) {
+                    disconnectedUserId = key;
+                    break;
+                }
+            }
+
+            if (disconnectedUserId) {
+                onlineUsers.delete(disconnectedUserId);
+                console.log(`User ${disconnectedUserId} went offline.`);
+
+                // Send updated list to everyone
+                const onlineUserIds = Array.from(onlineUsers.keys());
+                io.emit('getOnlineUsers', onlineUserIds);
+            }
             console.log(`User disconnected: ${socket.id}`);
         });
     });

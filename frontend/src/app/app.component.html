@@ -1,14 +1,11 @@
-<div class="d-flex flex-column vh-100">
-  <!-- Header: 10% height -->
-  <div *ngIf="showHeader$ | async" class="flex-shrink-0" style="height: 7vh;">
-    <app-header></app-header>
-  </div>
+<div class="app-container">
+  
+  <app-header *ngIf="showHeader$ | async"></app-header>
 
-  <!-- Main content: 90% height -->
-  <div class="flex-grow-1 overflow-hidden">
+  <div class="main-content">
     <router-outlet></router-outlet>
   </div>
 
-  <!-- Toaster -->
   <app-toaster></app-toaster>
+
 </div>

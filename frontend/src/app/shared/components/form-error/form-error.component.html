@@ -1,1 +1,25 @@
-<p>form-error works!</p>
+@if (control && control.invalid && (control.dirty || control.touched)) {
+  <div class="text-danger small mt-1">
+    
+    <!-- 1. Required Error -->
+    @if (control.hasError('required')) {
+      {{ text }} is required.
+    }
+
+    <!-- 2. Email Format Error -->
+    @if (control.hasError('email')) {
+      Please enter a valid email address.
+    }
+
+    <!-- 3. Min Length Error -->
+    @if (control.hasError('minlength')) {
+      {{ text }} must be at least {{ control.errors?.['minlength'].requiredLength }} characters.
+    }
+
+    <!-- 4. Password Mismatch (Custom) -->
+    @if (control.hasError('mismatch')) {
+      Passwords do not match.
+    }
+
+  </div>
+}

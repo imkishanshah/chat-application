@@ -1,27 +1,27 @@
+import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { ControlDirective } from '../../directives/control.directive';
+import { AbstractControl } from '@angular/forms';
 
 @Component({
   selector: 'app-form-error',
   standalone: true,
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './form-error.component.html',
   styleUrl: './form-error.component.scss'
 })
 export class FormErrorComponent {
-  Object = Object;
-  @Input({ required: true }) text: string = 'Field';
-  control!: any;
-  @Input({ required: false }) controlRef!: ControlDirective;
-  @Input({ required: false }) dyanmicControl!: any;
-  @Input() message: { [key in string]: string } = {};
-  @Input() hideErrorFor: Array<string> = [];
+ @Input({ required: true }) text: string = 'Field';
+  
+  // We accept the AbstractControl directly via dynamicControl for simplicity
+  @Input({ required: false }) dyanmicControl!: AbstractControl | any; 
+  
+  control!: AbstractControl | null;
 
   ngOnInit() {
-    if (this.controlRef?.control?.control) {
-      this.control = this.controlRef?.control?.control;
-    } else if (this.dyanmicControl) {
+    // If passed directly
+    if (this.dyanmicControl) {
       this.control = this.dyanmicControl;
     }
+    // If you had the directive logic, it would go here
   }
 }

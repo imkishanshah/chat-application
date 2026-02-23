@@ -12,7 +12,7 @@ import { Observable, combineLatest, map } from 'rxjs';
   standalone: true,
   imports: [RouterOutlet, HeaderComponent, ToasterComponent, CommonModule],
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss'] // <-- small fix, should be styleUrls
+  styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
   title = 'frontend';
@@ -23,7 +23,8 @@ export class AppComponent {
     private router: Router
   ) {
     this.showHeader$ = combineLatest([
-      this.sharedService.isLoggedIn$,this.router.events.pipe(map(() => this.router.url))
+      this.sharedService.isLoggedIn$,
+      this.router.events.pipe(map(() => this.router.url))
     ]).pipe(
       map(([isLoggedIn, url]) => {
         return isLoggedIn && url !== '/login';

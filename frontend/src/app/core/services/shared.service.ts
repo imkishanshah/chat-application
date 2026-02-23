@@ -20,18 +20,14 @@ export class SharedService {
   private userSubject = new BehaviorSubject<any>(this.getUser());
   user$ = this.userSubject.asObservable();
 
-  private hasToken(): boolean {
-    return !!localStorage.getItem(E_STORAGE.TOKEN);
-  }
-
   setUser(user: any) {
     localStorage.setItem(E_STORAGE.USER, JSON.stringify(user));
     this.userSubject.next(user);
-    this.isLoggedInSubject.next(true);
   }
 
   setToken(token: string) {
     localStorage.setItem(E_STORAGE.TOKEN, token);
+    this.isLoggedInSubject.next(true);
   }
 
   getToken(): string | null {

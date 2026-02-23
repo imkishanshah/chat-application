@@ -15,6 +15,7 @@
                             <label for="email" class="form-label">Email</label>
                             <input type="text" id="email" formControlName="email" class="form-control"
                                 placeholder="Enter your email" />
+                            <app-form-error [dyanmicControl]="f['email']" text="Email"></app-form-error>
                         </div>
 
                         <!-- Password -->
@@ -22,6 +23,7 @@
                             <label for="password" class="form-label">Password</label>
                             <input type="password" id="password" formControlName="password" class="form-control"
                                 placeholder="Enter your password" />
+                                <app-form-error [dyanmicControl]="f['password']" text="Password"></app-form-error>
                         </div>
 
                         <!-- Forgot Password Link -->
@@ -41,7 +43,6 @@
                         <span class="text-muted">Don't have an account?</span>
                         <a [routerLink]="['/signup']" class="text-decoration-none fw-semibold text-primary ms-1">Sign
                             Up</a>
-
                     </div>
                 </div>
             </div>

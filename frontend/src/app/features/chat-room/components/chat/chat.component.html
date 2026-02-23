@@ -1,62 +1,68 @@
-<div class="container-fluid d-flex flex-column vh-100 bg-light">
-    <div class="row flex-grow-1 overflow-hidden">
+<div class="chat-wrapper">
 
-        <!-- Sidebar: User List -->
-        <div class="col-md-3 d-none d-md-block p-0 bg-white border-end shadow-sm">
-            <div class="p-3 border-bottom bg-body-tertiary">
-                <input type="text" class="form-control" placeholder="Search users..." />
-            </div>
-            <div class="user-list overflow-auto" style="max-height: calc(100vh - 110px);">
-                <ul class="list-unstyled m-0">
-                    <li *ngFor="let user of users" (click)="selectUser(user)"
-                        [ngClass]="{ 'bg-primary text-white': user.id === selectedUser?.id }"
-                        class="p-3 border-bottom user-item" style="cursor: pointer; transition: 0.2s;">
-                        {{ user.first_name }}
-                    </li>
-                </ul>
-            </div>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <input type="text" class="form-control" placeholder="Search users..." [ngModel]="chatService.searchQuery()"
+                (ngModelChange)="chatService.searchQuery.set($event)" />
         </div>
 
-        <!-- Chat Window -->
-        <div class="col-md-9 col-12 d-flex flex-column p-0 vh-100">
-
-            <!-- Chat Header -->
-            <div class="d-flex align-items-center justify-content-between p-3 border-bottom bg-white shadow-sm">
-                <h5 class="mb-0">{{ selectedUser?.first_name || 'Chat Window' }}</h5>
+        <div class="user-list">
+            @for (user of chatService.filteredUsers(); track user.id) {
+            <div (click)="selectUser(user)" [ngClass]="{ 'active-user': user.id === chatService.selectedUser()?.id }"
+                class="user-item">
+                {{ user.first_name }}
+                @if (chatService.onlineUsersIds().includes(user.id)) {
+                <span class="online-dot"></span>
+                }
             </div>
+            }
+        </div>
+    </div>
 
-            <!-- Chat Body -->
-            <div class="chat-body flex-grow-1 overflow-auto p-3 bg-body-secondary">
-                <!-- Messages -->
-                <div *ngIf="selectedUser">
-                    <div *ngFor="let msg of messages" class="mb-2 d-flex"
-                        [ngClass]="{ 'justify-content-end': msg.fromSelf, 'justify-content-start': !msg.fromSelf }">
-                        <div [ngClass]="msg.fromSelf ? 'bg-primary text-white' : 'bg-white border'"
-                            class="p-2 rounded shadow-sm" style="max-width: 70%;">
-                            {{ msg.message }}
-                        </div>
-                    </div>
+    <!-- Chat Section -->
+    <div class="chat-section">
+
+        <!-- Chat Header -->
+        <div class="chat-header">
+            {{ chatService.selectedUser()?.first_name || 'Select a user' }}
+        </div>
+
+        <!-- Messages -->
+        <div class="chat-body" #scrollContainer (scroll)="onScroll()">
+
+            @for (msg of chatService.messages(); track msg.id) {
+            <div class="message-row" [ngClass]="msg.fromSelf ? 'self' : 'other'">
+                <div class="message-bubble">
+                    {{ msg.message }}
                 </div>
             </div>
+            }
+        </div>
 
-            <!-- Message Input -->
-            <div class="p-3 border-top bg-white shadow-sm" *ngIf="selectedUser">
+        <!-- Chat Input -->
+        @if (chatService.selectedUser()) {
+        <div class="chat">
+            <div class="chat-input">
                 <form [formGroup]="chatForm" (ngSubmit)="sendMessage()">
-                    <div class="row g-2 align-items-center">
-                        <div class="col-10 col-sm-11">
-                            <input type="text" class="form-control" formControlName="message"
-                                placeholder="Type your message..." />
-                        </div>
-                        <div class="col-2 col-sm-1 text-end">
-                            <button class="btn btn-primary w-100" type="submit" [disabled]="chatForm.invalid">
-                                📩
-                            </button>
-                        </div>
+                    <div class="input-group">
+                        <input type="text" class="form-control" formControlName="message"
+                            placeholder="Type your message..." />
+
+                        <button class="btn btn-primary" type="submit" [disabled]="chatForm.invalid">
+                            Send
+                        </button>
                     </div>
                 </form>
             </div>
-
+            <div class="chat-scroller">
+                @if (showScrollButton()) {
+                <button  class="scroll-btn" (click)="scrollToBottom()">
+                    <i class="fa fa-arrow-down"></i>
+                </button>
+                }
+            </div>
         </div>
-
+        }
     </div>
 </div>

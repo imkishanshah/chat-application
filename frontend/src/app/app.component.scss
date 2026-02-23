@@ -1,0 +1,11 @@
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* The whole page is exactly 100% of the screen */
+  overflow: hidden;
+}
+
+.main-content {
+  flex: 1; /* This tells the chat area to take up the EXACT remaining space */
+  overflow: hidden;
+}

@@ -12,11 +12,22 @@ export class ApiService {
 
   constructor(private http: HttpClient, private toastr: ToastrService) { }
 
-  get<T>(endpoint: string, params?: HttpParams): Observable<T> {
+
+  /**
+   * Perform HTTP GET request
+   * @param API endpoint 
+   * @param params 
+   */
+  public get<T>(endpoint: string, params?: HttpParams): Observable<T> {
     return this.http.get<T>(`${this.baseUrl}/${endpoint}`, { params });
   }
 
-  post<T>(endpoint: string, data: any): Observable<T> {
+  /**
+   * Perform HTTP POST request
+   * @param endpoint API endpoint
+   * @param data Request body payload
+   */
+  public post<T>(endpoint: string, data: any): Observable<T> {
     return this.http.post<T>(`${this.baseUrl}/${endpoint}`, data).pipe(
       map((res: any) => {
         console.log(res?.message);
@@ -28,7 +39,13 @@ export class ApiService {
     );
   }
 
-  put<T>(endpoint: string, data: any): Observable<T> {
+
+  /**
+  * Perform HTTP PUT request
+  * @param endpoint API endpoint
+  * @param data Request body payload
+  */
+  public put<T>(endpoint: string, data: any): Observable<T> {
     return this.http.put<T>(`${this.baseUrl}/${endpoint}`, data).pipe(
       map((res: any) => {
         if (res?.message) this.toastr.success(res.message);
@@ -38,7 +55,12 @@ export class ApiService {
     );
   }
 
-  delete<T>(endpoint: string): Observable<T> {
+
+  /**
+  * Perform HTTP DELETE request
+  * @param endpoint API endpoint
+  */
+  public delete<T>(endpoint: string): Observable<T> {
     return this.http.delete<T>(`${this.baseUrl}/${endpoint}`).pipe(
       map((res: any) => {
         if (res?.message) this.toastr.success(res.message);

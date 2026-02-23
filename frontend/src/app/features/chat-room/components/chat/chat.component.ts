@@ -1,108 +1,83 @@
-import { Component, OnInit } from '@angular/core';
-import { SocketService } from '../../services/socket.service';
+import { ChangeDetectionStrategy, Component, effect, ElementRef, OnInit, signal, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { SharedService } from '../../../../core/services/shared.service';
-import { ApiService } from '../../../../core/services/api.service';
+import { ChatService } from '../../services/chat-service.service';
 
 @Component({
   selector: 'app-chat',
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './chat.component.html',
-  styleUrl: './chat.component.scss'
+  styleUrl: './chat.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ChatComponent implements OnInit {
-  room = 'room1';
-  chatForm!: FormGroup;
-  messages: any[] = [];
-  users: any[] = [];
-  selectedUser: any;
-  currentUserId: any;
+  @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
 
+  showScrollButton = signal(false);
+  // Forms
+  chatForm!: FormGroup;
 
   constructor(
-    private fb: FormBuilder,
-    private socketService: SocketService,
-    private sharedService: SharedService,
-    private api: ApiService,
+    public chatService: ChatService,
+    private fb: FormBuilder
   ) {
-
-  }
-
-  ngOnInit() {
-
-    console.log("s");
-    
-    const currentUser = this.sharedService.getDecodedToken();
-    this.currentUserId = currentUser?.id;
-    this.getAllUsers();
-    this.createChatForm()
-    if (typeof window !== 'undefined') {
-      this.socketService.joinRoom(this.room);
-      this.socketService.onNewMessage().subscribe(msg => {
-        this.messages.push({
-          ...msg,
-          fromSelf: msg.sender_id === this.currentUserId
-        });
-      });
-    }
-  }
-
-  getAllUsers() {
-    this.api.get<any>('user').subscribe({
-      next: (response) => {        
-        this.users = response?.data.filter((user: any) => {
-          return user.id !== this.currentUserId;
-        });
-      },
-      error: (error) => {
-        console.error('Failed to fetch users:', error);
-      }
-    });
-  }
-
-  selectUser(user: any) {
-    this.selectedUser = user;
-    this.room = this.sharedService.getChatRoom(this.currentUserId!, user.id);
-    this.messages = [];
-
-    this.socketService.joinRoom(this.room);
-
-    this.socketService.getMessages(this.currentUserId!, user.id).subscribe({
-      next: (response: any) => {
-        this.messages = response?.payload?.data.map((msg: any) => ({
-          ...msg,
-          fromSelf: msg.sender_id === this.currentUserId
-        }));
-      },
-      error: (error) => {
-        console.error('Failed to fetch messages:', error);
-      }
-    });
-  }
-
-  createChatForm() {
-    this.chatForm = <FormGroup>this.fb.group({
-      message: new FormControl(null, Validators.required),
-      sender_id: new FormControl(null),
-      receiver_id: new FormControl(null),
+    effect(() => {
+      const msgs = chatService.messages();
+      setTimeout(() => {
+        this.scrollToBottom();
+      }, 50)
     })
   }
 
-  sendMessage() {
+  // On Init
+  ngOnInit() {
+    this.chatService.init();
+    this._createChatForm();
+  }
+
+  ngOnDestroy() {
+    this.chatService.destroy();
+  }
+
+  // #region Public Methods
+
+  // Get selected user
+  selectUser(user: any) {
+    this.chatService.selectUser(user);
+  }
+  // #endregion
+
+
+  private _createChatForm() {
+    this.chatForm = this.fb.group({
+      message: new FormControl(null, Validators.required),
+    });
+  }
+
+  public scrollToBottom() {
+    if (this.scrollContainer) {
+      this.scrollContainer.nativeElement.scrollTop =
+        this.scrollContainer.nativeElement.scrollHeight;
+    }
+  }
+
+  public sendMessage() {
     const message = this.chatForm.value.message?.trim();
 
-    if (message && this.selectedUser) {
-      this.socketService.sendMessage(
-        this.room,
-        message,
-        this.currentUserId,
-        this.selectedUser.id
-      );
-
+    if (message) {
+      this.chatService.sendMessage(message);
       this.chatForm.reset();
     }
   }
 
+  public onScroll() {
+    const el = this.scrollContainer.nativeElement;
+    if (!el) return;
+    const threshold = 50; // small buffer
+    const atBottom = el.scrollHeight - el.scrollTop <= el.clientHeight + threshold;
+    console.log(atBottom);
+    
+    this.showScrollButton.set(!atBottom);
+  }
 }

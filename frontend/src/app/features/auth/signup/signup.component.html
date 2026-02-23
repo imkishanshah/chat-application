@@ -1,6 +1,6 @@
 <div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center bg-light">
   <div class="card shadow-lg border-0 w-100" style="max-width: 500px;">
-    
+
     <!-- Card Header -->
     <div class="card-header bg-primary text-white text-center">
       <h4 class="mb-0">Create Account</h4>
@@ -15,11 +15,14 @@
         <div class="row g-3 mb-3">
           <div class="col-md-6">
             <label class="form-label">First Name</label>
-            <input type="text" class="form-control" formControlName="first_name" placeholder="First Name">
+            <input type="text" class="form-control" formControlName="first_name" placeholder="First Name"
+              [class.is-invalid]="isFieldInvalid('first_name')">
+            <app-form-error [dyanmicControl]="f['first_name']" text="Password"></app-form-error>
           </div>
           <div class="col-md-6">
             <label class="form-label">Last Name</label>
             <input type="text" class="form-control" formControlName="last_name" placeholder="Last Name">
+            <app-form-error [dyanmicControl]="f['last_name']" text="Last Name"></app-form-error>
           </div>
         </div>
 
@@ -27,18 +30,21 @@
         <div class="mb-3">
           <label class="form-label">Email</label>
           <input type="email" class="form-control" formControlName="email" placeholder="example@email.com">
+          <app-form-error [dyanmicControl]="f['email']" text="Email"></app-form-error>
         </div>
 
         <!-- Password -->
         <div class="mb-3">
           <label class="form-label">Password</label>
           <input type="password" class="form-control" formControlName="password" placeholder="Password">
+          <app-form-error [dyanmicControl]="f['password']" text="Password"></app-form-error>
         </div>
 
         <!-- Confirm Password -->
         <div class="mb-3">
           <label class="form-label">Confirm Password</label>
           <input type="password" class="form-control" formControlName="confirm_password" placeholder="Confirm Password">
+          <app-form-error [dyanmicControl]="f['confirm_password']" text="Confirm Password"></app-form-error>
         </div>
 
         <!-- Signup Button -->
@@ -53,7 +59,7 @@
     <!-- Card Footer -->
     <div class="card-footer text-center bg-white border-0">
       <small class="text-muted">
-        Already have an account? 
+        Already have an account?
         <a routerLink="/login" class="text-primary fw-bold text-decoration-none">Log in</a>
       </small>
     </div>
